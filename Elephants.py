@@ -1,6 +1,6 @@
 import os
 
-test_directory="/testdata/zadanie_B/slo1.in"
+test_directory="/testdata/zadanie_B/slo4.in"
 
 
 def readfile(file_dir):
@@ -29,40 +29,33 @@ def Permutation(current_order, desired_order):
     return permutation
 
 
-def SubCycles(elephants_count, elephants_masses, current_order, desired_order):
-    permutation=Permutation(current_order, desired_order)
-    indicator=[False for i in range(elephants_count)]
+def SubCycles(current_order, permutation):
+    lenght=len(permutation)
+    indicator=[False for i in range(lenght)]
     AllSubCycles=[] 
-    AllMasses=[]
-    for i in range(0, elephants_count):             
+    for i in range(0, lenght):             
         x=i
         if indicator[x]==False:
             SubCycle=[]
-            Masses=[]  
             while indicator[x] == False:
                 SubCycle.append(current_order[x])
-                Masses.append(elephants_masses[x])
                 indicator[x]=True
                 x=permutation[x]
             AllSubCycles.append(SubCycle)
-            AllMasses.append(Masses)
-    return AllSubCycles, AllMasses
+    return AllSubCycles
 
 
 def Method1(suma, minimal, vertices):
-    result=suma+(vertices-2)*minimal
+    result=suma+((vertices-2)*minimal)
     return result
     
 
 def Method2(suma, minimal, minimal_global, vertices):
-    result=suma+minimal+(vertices+1)*minimal_global
+    result=suma+minimal+((vertices+1)*minimal_global)
     return result
 
 
-def Result(file_dir):
-    elephants_count, elephants_masses, current_order, desired_order=DataAssignment(file_dir)
-    minimal_global=min(elephants_masses)
-    AllSubCycles, AllMasses = SubCycles(elephants_count, elephants_masses, current_order, desired_order)
+def Calc_Effort(AllMasses, minimal_global):
     Effort=0
     for i in AllMasses:
         suma=sum(i)
@@ -72,7 +65,16 @@ def Result(file_dir):
         Result_met2=Method2(suma, minimal, minimal_global, vertices)
         Result=min(Result_met1, Result_met2)
         Effort=Effort+Result
-        print(Effort)
+    return Effort
+
+
+def Result(file_dir):
+    elephants_count, elephants_masses, current_order, desired_order=DataAssignment(file_dir)
+    minimal_global=min(elephants_masses)
+    permutation=Permutation(current_order, desired_order)
+    AllMasses = SubCycles(elephants_masses, permutation)
+    AllSubCycles =SubCycles(current_order, permutation)
+    Effort=Calc_Effort(AllMasses, minimal_global)
     return Effort
 
 
