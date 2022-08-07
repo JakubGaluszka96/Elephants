@@ -1,6 +1,6 @@
 import os
 
-test_directory="/testdata/zadanie_B/slo10b.in"
+test_directory="/testdata/zadanie_B/slo1.in"
 
 def readfile(file_dir):
     path = os.getcwd()+file_dir
@@ -21,16 +21,14 @@ def DataAssignment(file_dir):
     return elephants_count, elephants_masses, current_order, desired_order
 
 
-def Permutation(file_dir):
-    elephants_count, elephants_masses, current_order, desired_order = DataAssignment(file_dir)
+def Permutation(current_order, desired_order):
     permutation=[]
     for i in current_order:
         permutation.append(desired_order.index(i))
     return permutation
 
-def SubCycles(file_dir):
-    elephants_count, elephants_masses, current_order, desired_order = DataAssignment(file_dir)
-    permutation=Permutation(file_dir)
+def SubCycles(elephants_count, elephants_masses, current_order, desired_order):
+    permutation=Permutation(current_order, desired_order)
     indicator=[False for i in range(elephants_count)]
     AllSubCycles=[] 
     AllMasses=[]
@@ -49,19 +47,18 @@ def SubCycles(file_dir):
     return AllSubCycles, AllMasses
 
 
-def Method1(file_dir):
-    AllSubCycles, AllMasses = SubCycles(file_dir)
+def Method1(AllMasses):
     Effort=0
     for i in AllMasses:
         suma=sum(i)
         minimal=min(i)
         result=suma+(len(i)-2)*minimal
+        print(result)
         Effort=Effort+result
     return Effort
     
 
-def Method2(file_dir):
-    AllSubCycles, AllMasses = SubCycles(file_dir)
+def Method2(AllMasses):
     Effort=0
     flatMass = [ item for elem in AllMasses for item in elem]
     minimal_global=min(flatMass)
@@ -69,11 +66,15 @@ def Method2(file_dir):
         suma=sum(i)
         minimal=min(i)
         result=suma+minimal+(len(i)+1)*minimal_global
+        print(result)
         Effort=Effort+result
     return Effort
 
 def Result(file_dir):
-    Result=min(Method1(file_dir),Method2(file_dir))
+    elephants_count, elephants_masses, current_order, desired_order=DataAssignment(file_dir)
+    minimal_global=min(elephants_masses)
+    AllSubCycles, AllMasses = SubCycles(elephants_count, elephants_masses, current_order, desired_order)
+    Result=min(Method1(AllMasses),Method2(AllMasses))
     return Result
 
-print(Result(test_directory))
+Result(test_directory)
