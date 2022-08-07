@@ -2,6 +2,7 @@ import os
 
 test_directory="/testdata/zadanie_B/slo1.in"
 
+
 def readfile(file_dir):
     path = os.getcwd()+file_dir
     print(path)
@@ -27,6 +28,7 @@ def Permutation(current_order, desired_order):
         permutation.append(desired_order.index(i))
     return permutation
 
+
 def SubCycles(elephants_count, elephants_masses, current_order, desired_order):
     permutation=Permutation(current_order, desired_order)
     indicator=[False for i in range(elephants_count)]
@@ -47,34 +49,31 @@ def SubCycles(elephants_count, elephants_masses, current_order, desired_order):
     return AllSubCycles, AllMasses
 
 
-def Method1(AllMasses):
-    Effort=0
-    for i in AllMasses:
-        suma=sum(i)
-        minimal=min(i)
-        result=suma+(len(i)-2)*minimal
-        print(result)
-        Effort=Effort+result
-    return Effort
+def Method1(suma, minimal, vertices):
+    result=suma+(vertices-2)*minimal
+    return result
     
 
-def Method2(AllMasses):
-    Effort=0
-    flatMass = [ item for elem in AllMasses for item in elem]
-    minimal_global=min(flatMass)
-    for i in AllMasses:
-        suma=sum(i)
-        minimal=min(i)
-        result=suma+minimal+(len(i)+1)*minimal_global
-        print(result)
-        Effort=Effort+result
-    return Effort
+def Method2(suma, minimal, minimal_global, vertices):
+    result=suma+minimal+(vertices+1)*minimal_global
+    return result
+
 
 def Result(file_dir):
     elephants_count, elephants_masses, current_order, desired_order=DataAssignment(file_dir)
     minimal_global=min(elephants_masses)
     AllSubCycles, AllMasses = SubCycles(elephants_count, elephants_masses, current_order, desired_order)
-    Result=min(Method1(AllMasses),Method2(AllMasses))
-    return Result
+    Effort=0
+    for i in AllMasses:
+        suma=sum(i)
+        minimal=min(i)
+        vertices=len(i)
+        Result_met1=Method1(suma, minimal, vertices)
+        Result_met2=Method2(suma, minimal, minimal_global, vertices)
+        Result=min(Result_met1, Result_met2)
+        Effort=Effort+Result
+        print(Effort)
+    return Effort
+
 
 Result(test_directory)
