@@ -1,6 +1,8 @@
 import os
+import time
+import numpy as np
 
-test_directory="/testdata/zadanie_B/slo4.in"
+test_directory="/testdata/zadanie_B/slo1.in"
 
 
 def readfile(file_dir):
@@ -17,17 +19,14 @@ def DataAssignment(file_dir):
     lists=content.split('\n')
     elephants_count=int(lists[0])
     elephants_masses=list(map(int, lists[1].split(' ')))
-    current_order=lists[2].split(' ')
-    desired_order=lists[3].split(' ')
+    current_order=list(map(int, lists[2].split(' ')))
+    desired_order=list(map(int, lists[3].split(' ')))
     return elephants_count, elephants_masses, current_order, desired_order
 
 
 def Permutation(current_order, desired_order):
-    permutation=[]
-    for i in current_order:
-        permutation.append(desired_order.index(i))
+    permutation=[desired_order.index(i) for i in current_order]
     return permutation
-
 
 def SubCycles(current_order, permutation):
     lenght=len(permutation)
@@ -41,8 +40,30 @@ def SubCycles(current_order, permutation):
                 SubCycle.append(current_order[x])
                 indicator[x]=True
                 x=permutation[x]
+            #if len(SubCycle)>1:
             AllSubCycles.append(SubCycle)
     return AllSubCycles
+
+
+def MakeSubCycle(current_order, permutation,x):
+    SubCycle=[]
+    while current_order[x] not in SubCycle:
+        SubCycle.append(current_order[x])
+        x=permutation[x]
+    return SubCycle
+
+
+def MakeMassMinimal(current_order, permutation,x):
+    if x == False:
+        SubCycle=[]
+        while current_order[x] not in SubCycle:
+            SubCycle.append(current_order[x])
+            indicator[x]=True
+            x=permutation[x]
+    suma=sum(SubCycle)
+    minimal=min(SubCycle)
+    vertices=len(SubCycle)
+    return suma, minimal, vertices
 
 
 def Method1(suma, minimal, vertices):
@@ -77,5 +98,5 @@ def Result(file_dir):
     Effort=Calc_Effort(AllMasses, minimal_global)
     return Effort
 
+print(Result(test_directory))
 
-Result(test_directory)
