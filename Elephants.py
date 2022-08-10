@@ -1,8 +1,9 @@
 import os
 import time
-import numpy as np
+import resource
 
-test_directory="/testdata/zadanie_B/slo1.in"
+test_directory="/testdata/zadanie_B/slo5.in"
+resource.setrlimit(resource.RLIMIT_AS, (7e+7,7e+7))
 
 
 def readfile(file_dir):
@@ -23,10 +24,29 @@ def DataAssignment(file_dir):
     desired_order=list(map(int, lists[3].split(' ')))
     return elephants_count, elephants_masses, current_order, desired_order
 
+def DataAssignmentDict(file_dir):
+    content=readfile(file_dir)
+    lists=content.split('\n')
+    elephants_count=int(lists[0])
+    elephants_masses=list(map(int, lists[1].split(' ')))
+    current_order=list(map(int, lists[2].split(' ')))
+    desired_order=list(map(int, lists[3].split(' ')))
+    places=range(elephants_count)
+    current_dict=dict(zip(places, current_order))
+    desired_dict=dict(zip(desired_order, places))
+    return elephants_count, elephants_masses, current_dict, desired_dict
+
+
 
 def Permutation(current_order, desired_order):
     permutation=[desired_order.index(i) for i in current_order]
     return permutation
+
+
+def PermutationDict(Dict1, Dict2, elephants_count):
+    permutation=[Dict2.get(Dict1.get(i)) for i in range(elephants_count)]
+    return permutation
+
 
 def SubCycles(current_order, permutation):
     lenght=len(permutation)
@@ -90,13 +110,16 @@ def Calc_Effort(AllMasses, minimal_global):
 
 
 def Result(file_dir):
-    elephants_count, elephants_masses, current_order, desired_order=DataAssignment(file_dir)
+    elephants_count, elephants_masses, current_order, desired_order=DataAssignmentDict(file_dir)
     minimal_global=min(elephants_masses)
-    permutation=Permutation(current_order, desired_order)
+    permutation=PermutationDict(current_order, desired_order, elephants_count)
     AllMasses = SubCycles(elephants_masses, permutation)
     AllSubCycles =SubCycles(current_order, permutation)
     Effort=Calc_Effort(AllMasses, minimal_global)
     return Effort
 
-print(Result(test_directory))
-
+elephants_count, elephants_masses, current_order, desired_order=DataAssignment(test_directory)
+a=time.time()
+Result(test_directory)
+b=time.time()
+print(b-a)
