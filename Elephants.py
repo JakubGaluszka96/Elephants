@@ -1,14 +1,15 @@
 import os
+from pathlib import Path
 import time
 import resource
+import tracemalloc
 
-test_directory="/testdata/zadanie_B/slo5.in"
-resource.setrlimit(resource.RLIMIT_AS, (7e+7,7e+7))
+test_directory="/testdata/zadanie_B/slo10b.in"
+resource.setrlimit(resource.RLIMIT_AS, (100e+7,100e+7))
 
 
 def readfile(file_dir):
     path = os.getcwd()+file_dir
-    print(path)
     txt_file = open(path, "r")
     content = txt_file.read()
     txt_file.close()
@@ -25,15 +26,15 @@ def DataAssignment(file_dir):
     return elephants_count, elephants_masses, current_order, desired_order
 
 def DataAssignmentDict(file_dir):
-    content=readfile(file_dir)
-    lists=content.split('\n')
-    elephants_count=int(lists[0])
-    elephants_masses=list(map(int, lists[1].split(' ')))
-    current_order=list(map(int, lists[2].split(' ')))
-    desired_order=list(map(int, lists[3].split(' ')))
+    elephants_count=int(readfile(file_dir).split('\n')[0])
+    elephants_masses=list(map(int, readfile(file_dir).split('\n')[1].split(' ')))
+    current_order=list(map(int, readfile(file_dir).split('\n')[2].split(' ')))
+    desired_order=list(map(int, readfile(file_dir).split('\n')[3].split(' ')))
     places=range(elephants_count)
     current_dict=dict(zip(places, current_order))
     desired_dict=dict(zip(desired_order, places))
+    del current_order
+    del desired_order
     return elephants_count, elephants_masses, current_dict, desired_dict
 
 
@@ -118,8 +119,3 @@ def Result(file_dir):
     Effort=Calc_Effort(AllMasses, minimal_global)
     return Effort
 
-elephants_count, elephants_masses, current_order, desired_order=DataAssignment(test_directory)
-a=time.time()
-Result(test_directory)
-b=time.time()
-print(b-a)
