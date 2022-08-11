@@ -1,14 +1,12 @@
 import os
-from pathlib import Path
-import time
-import resource
-import tracemalloc
-
-test_directory="/testdata/zadanie_B/slo10b.in"
-resource.setrlimit(resource.RLIMIT_AS, (100e+7,100e+7))
 
 
-def readfile(file_dir):
+test_directory="/testdata/zadanie_B/slo5.in"
+#resource.setrlimit(resource.RLIMIT_AS, (100e+7,100e+7))
+
+
+###-odczyt pliku
+def read_file(file_dir):
     path = os.getcwd()+file_dir
     txt_file = open(path, "r")
     content = txt_file.read()
@@ -16,43 +14,30 @@ def readfile(file_dir):
     return content
 
 
-def DataAssignment(file_dir):
-    content=readfile(file_dir)
-    lists=content.split('\n')
-    elephants_count=int(lists[0])
-    elephants_masses=list(map(int, lists[1].split(' ')))
-    current_order=list(map(int, lists[2].split(' ')))
-    desired_order=list(map(int, lists[3].split(' ')))
-    return elephants_count, elephants_masses, current_order, desired_order
+###-przypisanie wartosci z pliku do zmiennych
+def data_assignment(file_dir):
 
-def DataAssignmentDict(file_dir):
-    elephants_count=int(readfile(file_dir).split('\n')[0])
-    elephants_masses=list(map(int, readfile(file_dir).split('\n')[1].split(' ')))
-    current_order=list(map(int, readfile(file_dir).split('\n')[2].split(' ')))
-    desired_order=list(map(int, readfile(file_dir).split('\n')[3].split(' ')))
-    places=range(elephants_count)
-    current_dict=dict(zip(places, current_order))
-    desired_dict=dict(zip(desired_order, places))
-    del current_order
-    del desired_order
+    elephants_count=int(read_file(file_dir).split('\n')[0])
+    elephants_masses=list(map(int, read_file(file_dir).split('\n')[1].split(' ')))
+    #current_order=list(map(int, readfile(file_dir).split('\n')[2].split(' ')))
+    #desired_order=list(map(int, readfile(file_dir).split('\n')[3].split(' ')))
+    #places=range(elephants_count)
+    current_dict=dict(zip(range(elephants_count), list(map(int, read_file(file_dir).split('\n')[2].split(' ')))))
+    desired_dict=dict(zip(list(map(int, read_file(file_dir).split('\n')[3].split(' '))), range(elephants_count)))
     return elephants_count, elephants_masses, current_dict, desired_dict
 
 
-
-def Permutation(current_order, desired_order):
-    permutation=[desired_order.index(i) for i in current_order]
-    return permutation
-
-
-def PermutationDict(Dict1, Dict2, elephants_count):
+###-stowrzenie listy permutacji
+def get_permutation(Dict1, Dict2, elephants_count):
     permutation=[Dict2.get(Dict1.get(i)) for i in range(elephants_count)]
     return permutation
 
 
-def SubCycles(current_order, permutation):
+###-stworzenie listy podcykli
+def get_subcycles(current_order, permutation):
     lenght=len(permutation)
     indicator=[False for i in range(lenght)]
-    AllSubCycles=[] 
+    all_subcycles=[] 
     for i in range(0, lenght):             
         x=i
         if indicator[x]==False:
@@ -62,60 +47,45 @@ def SubCycles(current_order, permutation):
                 indicator[x]=True
                 x=permutation[x]
             #if len(SubCycle)>1:
-            AllSubCycles.append(SubCycle)
-    return AllSubCycles
+            all_subcycles.append(SubCycle)
+    return all_subcycles
 
 
-def MakeSubCycle(current_order, permutation,x):
-    SubCycle=[]
-    while current_order[x] not in SubCycle:
-        SubCycle.append(current_order[x])
-        x=permutation[x]
-    return SubCycle
-
-
-def MakeMassMinimal(current_order, permutation,x):
-    if x == False:
-        SubCycle=[]
-        while current_order[x] not in SubCycle:
-            SubCycle.append(current_order[x])
-            indicator[x]=True
-            x=permutation[x]
-    suma=sum(SubCycle)
-    minimal=min(SubCycle)
-    vertices=len(SubCycle)
-    return suma, minimal, vertices
-
-
-def Method1(suma, minimal, vertices):
+###-obliczenie wysilku przy uzyciu 1 metody dla jednego podcyklu
+def method1(suma, minimal, vertices):
     result=suma+((vertices-2)*minimal)
     return result
-    
 
-def Method2(suma, minimal, minimal_global, vertices):
+
+###-obliczenie wysilku przy uzyciu 2 metody dla jednego podcyklu
+def method2(suma, minimal, minimal_global, vertices):
     result=suma+minimal+((vertices+1)*minimal_global)
     return result
 
 
-def Calc_Effort(AllMasses, minimal_global):
-    Effort=0
-    for i in AllMasses:
+###-obliczenie wysilku
+def calc_effort(all_masses, minimal_global):
+    effort=0
+    for i in all_masses:
         suma=sum(i)
         minimal=min(i)
         vertices=len(i)
-        Result_met1=Method1(suma, minimal, vertices)
-        Result_met2=Method2(suma, minimal, minimal_global, vertices)
-        Result=min(Result_met1, Result_met2)
-        Effort=Effort+Result
-    return Effort
+        result_met1=method1(suma, minimal, vertices)
+        result_met2=method2(suma, minimal, minimal_global, vertices)
+        result=min(result_met1, result_met2)
+        effort=effort+result
+    return effort
 
 
-def Result(file_dir):
-    elephants_count, elephants_masses, current_order, desired_order=DataAssignmentDict(file_dir)
+###-funkcja wywolujaca po koleji metody celem uzyskania wyniku, czyli wysilku
+def get_result(file_dir):
+    elephants_count, elephants_masses, current_order, desired_order=data_assignment(file_dir)
     minimal_global=min(elephants_masses)
-    permutation=PermutationDict(current_order, desired_order, elephants_count)
-    AllMasses = SubCycles(elephants_masses, permutation)
-    AllSubCycles =SubCycles(current_order, permutation)
-    Effort=Calc_Effort(AllMasses, minimal_global)
-    return Effort
+    permutation=get_permutation(current_order, desired_order, elephants_count)
+    all_masses = get_subcycles(elephants_masses, permutation)
+    #all_subcycles =get_subcycles(current_order, permutation)
+    effort=calc_effort(all_masses, minimal_global)
+    return effort
 
+
+print(get_result(test_directory))
