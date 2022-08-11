@@ -1,8 +1,11 @@
 import os
+import sys
 
 
-test_directory="/testdata/zadanie_B/slo5.in"
+test_directory="/testdata/slo10b.in"
 #resource.setrlimit(resource.RLIMIT_AS, (100e+7,100e+7))
+if len(sys.argv) >1:
+    test_directory=sys.argv[1]
 
 
 ###-odczyt pliku
@@ -16,7 +19,6 @@ def read_file(file_dir):
 
 ###-przypisanie wartosci z pliku do zmiennych
 def data_assignment(file_dir):
-
     elephants_count=int(read_file(file_dir).split('\n')[0])
     elephants_masses=list(map(int, read_file(file_dir).split('\n')[1].split(' ')))
     #current_order=list(map(int, readfile(file_dir).split('\n')[2].split(' ')))
@@ -50,6 +52,11 @@ def get_subcycles(current_order, permutation):
             all_subcycles.append(SubCycle)
     return all_subcycles
 
+###-przypisanie masy kolejnym elementom podcykli
+def get_masses_subcycles(elephants_masses, all_subcycles):
+    all_masses=[[elephants_masses[x-1] for x in all_subcycles[i]] for i in range(len(all_subcycles))]
+    return all_masses
+
 
 ###-obliczenie wysilku przy uzyciu 1 metody dla jednego podcyklu
 def method1(suma, minimal, vertices):
@@ -82,8 +89,8 @@ def get_result(file_dir):
     elephants_count, elephants_masses, current_order, desired_order=data_assignment(file_dir)
     minimal_global=min(elephants_masses)
     permutation=get_permutation(current_order, desired_order, elephants_count)
-    all_masses = get_subcycles(elephants_masses, permutation)
-    #all_subcycles =get_subcycles(current_order, permutation)
+    all_subcycles =get_subcycles(current_order, permutation)
+    all_masses=get_masses_subcycles(elephants_masses, all_subcycles)
     effort=calc_effort(all_masses, minimal_global)
     return effort
 
