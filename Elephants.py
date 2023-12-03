@@ -1,10 +1,11 @@
 import os
+import sys
 
 
-#test_directory="/testdata/slo10b.in"
+test_directory="/testdata/slo10b.in"
 #resource.setrlimit(resource.RLIMIT_AS, (100e+7,100e+7))
-#if len(sys.argv) >1:
-#    test_directory=sys.argv[1]
+
+
 
 
 ###-odczyt pliku
@@ -17,22 +18,27 @@ def read_file(file_dir):
 
 
 ###-przypisanie wartosci z pliku do zmiennych
-def data_assignment(file_dir):
+def data_assignment_file(file_dir):
     elephants_count=int(read_file(file_dir).split('\n')[0])
     elephants_masses=list(map(int, read_file(file_dir).split('\n')[1].split(' ')))
-    #current_order=list(map(int, readfile(file_dir).split('\n')[2].split(' ')))
-    #desired_order=list(map(int, readfile(file_dir).split('\n')[3].split(' ')))
-    #places=range(elephants_count)
     current_dict=dict(zip(range(elephants_count), list(map(int, read_file(file_dir).split('\n')[2].split(' ')))))
     desired_dict=dict(zip(list(map(int, read_file(file_dir).split('\n')[3].split(' '))), range(elephants_count)))
     return elephants_count, elephants_masses, current_dict, desired_dict
 
 
-def data_assignment(input1, input2, input3, input4):
+def data_assignment_input(input1, input2, input3, input4):
     elephants_count=int(input1)
     elephants_masses=list(map(int,input2.split(' ')))
     current_dict=dict(zip(range(elephants_count), list(map(int, input3.split(' ')))))
     desired_dict=dict(zip(list(map(int, input4.split(' '))), range(elephants_count)))
+    return elephants_count, elephants_masses, current_dict, desired_dict
+
+
+def data_assignment_argument():
+    elephants_count=sys.argv[1].split('\n')
+    elephants_masses = sys.argv[1].split('\n')[1].split(' ')
+    current_dict=dict(zip(range(elephants_count), list(map(int, sys.argv[1].split('\n')[2].split(' ')))))
+    desired_dict=dict(zip(list(map(int, sys.argv[1].split('\n')[3].split(' '))), range(elephants_count)))
     return elephants_count, elephants_masses, current_dict, desired_dict
 
 ###-stowrzenie listy permutacji
@@ -91,8 +97,11 @@ def calc_effort(all_masses, minimal_global):
 
 
 ###-funkcja wywolujaca po koleji metody celem uzyskania wyniku, czyli wysilku
-def get_result(input1, input2, input3, input4):
-    elephants_count, elephants_masses, current_order, desired_order=data_assignment(input1, input2, input3, input4)
+def get_result(input):
+    if len(sys.argv) > 1:
+        elephants_count, elephants_masses, current_order, desired_order=data_assignment_argument()
+    else:
+        elephants_count, elephants_masses, current_order, desired_order=data_assignment_file(input)
     minimal_global=min(elephants_masses)
     permutation=get_permutation(current_order, desired_order, elephants_count)
     all_subcycles =get_subcycles(current_order, permutation)
@@ -100,8 +109,4 @@ def get_result(input1, input2, input3, input4):
     effort=calc_effort(all_masses, minimal_global)
     return effort
 
-input1=input()
-input2=input()
-input3=input()
-input4=input()
-print(get_result(input1, input2, input3, input4))
+print(get_result(test_directory))
